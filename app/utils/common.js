@@ -1,9 +1,10 @@
 const bcrypt = require("bcryptjs");
 
-const hashPassword = async (plain) => {
-    return await bcrypt.hash(plain, 8);
+// hash password if it exists
+const hashPassword = async (req) => {
+    if (req.body.password) {
+        req.body.password = await bcrypt.hash(req.body.password, 8);
+    }
 };
 
-module.exports = {
-    hashPassword
-}
+module.exports = hashPassword;

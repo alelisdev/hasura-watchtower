@@ -1,24 +1,30 @@
 {
   "name": "watchtower-server",
-  "version": "0.0.1",
-  "license": "Apache-2.0",
-  "description": "node express sqlite",
+  "version": "1.0.0",
+  "description": "",
+  "main": "server.js",
   "scripts": {
-    "start": "node ./server.js",
-    "dev": "nodemon ./server.js",
-    "migration": "node migration.js"
+    "migrate": "knex migrate:latest --knexfile db/knexfile.js",
+    "seed": "knex seed:run --knexfile db/knexfile.js",
+    "dev": "nodemon server.js"
   },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
   "dependencies": {
     "bcryptjs": "^2.4.3",
+    "body-parser": "^1.19.0",
+    "cookie-parser": "^1.4.6",
     "cors": "^2.8.5",
+    "dayjs": "^1.10.7",
     "dotenv": "^16.0.0",
-    "express": "^4.17.3",
-    "mysql-migrations": "^1.0.7",
-    "nodemon": "^2.0.15",
-    "sequelize": "^6.17.0",
+    "express": "^4.17.1",
+    "knex": "^0.95.11",
+    "nodemon": "^2.0.14",
     "sqlite3": "^5.0.2"
   },
   "devDependencies": {
-    "sequelize-cli": "^6.4.1"
+    "eslint": "^8.1.0",
+    "prettier": "2.4.1"
   }
 }

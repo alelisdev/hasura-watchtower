@@ -1,45 +1,33 @@
-const express = require("express");
+const express = require('express');
+const bodyParser = require('body-parser');
 const cors = require("cors");
-const sqlite3 = require('sqlite3').verbose();
+const cookieParser = require('cookie-parser')
+const knexConfig = require('./db/knexfile');
+const userRouter = require('./routes/userRouter');
 const dotenv = require("dotenv");
 dotenv.config();
-const { hashPassword } = require('./utils/common');
-//import utils
-
-//Connect DB
-const db = new sqlite3.Database(process.env.WATCHTOWER_DBSOURCE, (err) => { 
-    if (err) {
-      // Cannot open database
-      console.error(err.message)
-      throw err
-    } else {
-      console.log('connected the sqlite')
-    }
-  }
-)
-
+//initialize knex
+const knex = require('knex')(knexConfig[process.env.NODE_ENV])
 const app = express();
 
-// parse requests of content-type: application/json
-// parses incoming requests with JSON payloads
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 // enabling cors for all requests by using cors middleware
 app.use(cors());
 // Enable pre-flight
 app.options("*", cors());
+app.use(cookieParser());
+
+const port = 5000;
+
+app.use(bodyParser.json());
 
 app.get('/', (req, res) => {
-  res.send('Hello World');
-})
+  res.send('Hello World!');
+});
 
-const a = hashPassword('123456789');
-a.then(result => {
-  
-console.log(result)
-})
+app.use('/v1', userRouter)
 
-const PORT = process.env.WATCHTOWER_SERVERPORT;
-app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}.`);
+app.listen(port, () => {
+  console.log(`Example app listening at http://localhost:${port}`);
 });
