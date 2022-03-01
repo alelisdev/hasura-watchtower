@@ -2,12 +2,12 @@ const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require("cors");
 const cookieParser = require('cookie-parser')
-const knexConfig = require('./db/knexfile');
+// const knexConfig = require('./db/knexfile');
 const userRouter = require('./routes/userRouter');
 const dotenv = require("dotenv");
 dotenv.config();
 //initialize knex
-const knex = require('knex')(knexConfig[process.env.NODE_ENV])
+// const knex = require('knex')(knexConfig[process.env.NODE_ENV])
 const app = express();
 
 app.use(express.json());

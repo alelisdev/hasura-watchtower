@@ -1,40 +1,49 @@
 const express = require("express");
 const dayjs = require('dayjs');
+const bcrypt = require("bcryptjs");
 const router = express.Router();
 const hashPassword = require('../utils/common');
 const dotenv = require("dotenv");
 const knexConfig = require('../db/knexfile');
+const HttpException = require('../utils/HttpException');
 dotenv.config();
 //initialize knex
-const knex = require('knex')(knexConfig[process.env.NODE_ENV])
+const knex = require('knex')(knexConfig[process.env.NODE_ENV]);
+//allowed user middleware
+const isAllowedUser = require('../middleware/authUser');
+
 
 
 /************* routers ************/
 
 //test router
-router.get("/test", (req, res) => res.json({ msg: "Users works!!" }));
+router.get("/test", isAllowedUser(), (req, res) => res.json({ msg: "Users works!!" }));
 
 //set cookie using name and password
-router.post('/auth/login', (req, res) => {
+router.post('/auth/login', isAllowedUser(), async (req, res) => {
     const name = req.body.name ? req.body.name : '';
     const password = req.body.password ? req.body.password : '';
     
-    if (!name) {
-      return res.json({success: false, message: 'Name is required'});
+    if (!req.body.name) {
+        return res.json({success: false, message: 'Name is required'});
     }
 
-    if (!password) {
-      return res.json({success: false, message: 'Password is required'});
-    }
-
-    console.log(process.env.WATCHTOWER_SECRET);
+    if (!req.body.password) {
+       return res.json({success: false, message: 'Password is required'});
+    }    
     knex('users')
     .select()
     .where({name})
-    .where({password})
-    .then((user) => {
+    .then( async (user) => {
         if(user.length !== 0)  {
-            res.cookie("secureCookie", JSON.stringify(process.env.WATCHTOWER_SECRET), {
+            console.log(user[0].password)
+
+            const isMatch = await bcrypt.compare(password, user[0].password);
+            if (!isMatch) {
+                throw new HttpException(401, "Incorrect account or password");
+            }
+            console.log(user)
+            res.cookie("secureCookie", JSON.stringify(process.env.WATCHTOWER_SECRET + user[0].name), {
                 secure: process.env.NODE_ENV !== "development",
                 httpOnly: true,
                 expires: dayjs().add(30, "days").toDate(),
@@ -49,7 +58,7 @@ router.post('/auth/login', (req, res) => {
 });
   
 // get users have the permission allowed_users
-router.get('/users', (req, res) => {
+router.get('/users', isAllowedUser(), (req, res) => {
     knex('users')
     .select('name', 'allow_users', 'allow_graphql', 'allow_metadata', 'allow_migrations')
     .then((user) => {
@@ -62,7 +71,7 @@ router.get('/users', (req, res) => {
 });
 
 // create new user
-router.post('/user/create', async (req, res) => {
+router.post('/user/create', isAllowedUser(), async (req, res) => {
 
     if (!req.body.name) {
         return res.json({success: false, message: 'Name is required'});
@@ -104,7 +113,7 @@ router.post('/user/create', async (req, res) => {
 })
 
 // Get user By Id
-router.get('/user/:id', (req, res) => {
+router.get('/user/:id', isAllowedUser(), (req, res) => {
     knex('users')
     .select('name', 'allow_users', 'allow_graphql', 'allow_metadata', 'allow_migrations')
     .where({'id': req.params.id})
@@ -118,7 +127,7 @@ router.get('/user/:id', (req, res) => {
 });
 
 // Put user by Id
-router.put('/user/:id', async (req, res) => {
+router.put('/user/:id', isAllowedUser(), async (req, res) => {
 
     if (!req.body.name) {
         return res.json({success: false, message: 'Name is required'});
@@ -164,7 +173,7 @@ router.put('/user/:id', async (req, res) => {
 
 
 // Delete user by Id
-router.delete('/user/:id', async (req, res) => {
+router.delete('/user/:id', isAllowedUser(), async (req, res) => {
     knex('users')
     .where({'id': req.params.id})
     .del()
