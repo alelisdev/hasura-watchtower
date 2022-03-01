@@ -1,13 +1,12 @@
 const express = require('express');
 const bodyParser = require('body-parser');
 const cors = require("cors");
-const cookieParser = require('cookie-parser')
-// const knexConfig = require('./db/knexfile');
+const cookieParser = require('cookie-parser');
 const userRouter = require('./routes/userRouter');
 const dotenv = require("dotenv");
 dotenv.config();
-//initialize knex
-// const knex = require('knex')(knexConfig[process.env.NODE_ENV])
+
+
 const app = express();
 
 app.use(express.json());
@@ -29,5 +28,5 @@ app.get('/', (req, res) => {
 app.use('/v1', userRouter)
 
 app.listen(port, () => {
-  console.log(`Example app listening at http://localhost:${port}`);
+  console.log(`Server is listening at http://localhost:${port}`);
 });
