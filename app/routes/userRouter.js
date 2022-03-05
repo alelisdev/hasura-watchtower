@@ -10,7 +10,7 @@ dotenv.config();
 //initialize knex
 const knex = require('knex')(knexConfig[process.env.NODE_ENV]);
 //allowed user middleware
-const isAllowedUser = require('../middleware/authUser');
+const { isAllowedUser, isAllowedMetadata } = require('../middleware/authUser');
 
 
 
@@ -171,7 +171,6 @@ router.put('/user/:id', isAllowedUser(), async (req, res) => {
     }
 });
 
-
 // Delete user by Id
 router.delete('/user/:id', isAllowedUser(), async (req, res) => {
     knex('users')
@@ -186,5 +185,11 @@ router.delete('/user/:id', isAllowedUser(), async (req, res) => {
         return res.json({success: false, message: 'An error occurred, please try again later.'});
     });
 });
+
+// hasura
+
+router.get('/metadata/get', isAllowedMetadata, async (req, res) => { 
+    res.send('dfd');
+})
 
 module.exports = router;

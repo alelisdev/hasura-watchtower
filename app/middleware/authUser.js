@@ -36,5 +36,104 @@ const isAllowedUser = () => {
   };
 };  
 
-module.exports = isAllowedUser;
+const isAllowedGraphql = () => {
+  return function (req, res, next) {
+    try {
+      const name = req.headers.authorization ? req.headers.authorization : '';
+      
+      knex('users')
+      .select()
+      .where({name})
+      .then( (user) => {
+          if(user.length !== 0)  {
+            console.log(user)
+            if (!user[0].allow_graphql ) {
+                throw new HttpException(401, "Access denied. No allowed user!");
+            }
+            next();
+          } else {
+            throw new HttpException(401, "User is not allowed");
+          }
+      })
+      .catch((e) => {
+          e.status = 401;
+          next(e);
+      });
+      
+    } catch (e) {
+      e.status = 401;
+      next(e);
+    }
+  };
+};  
+
+
+
+const isAllowedMetadata = () => {
+  return function (req, res, next) {
+    try {
+      const name = req.headers.authorization ? req.headers.authorization : '';
+      
+      knex('users')
+      .select()
+      .where({name})
+      .then( (user) => {
+          if(user.length !== 0)  {
+            console.log(user)
+            if (!user[0].allow_metadata ) {
+                throw new HttpException(401, "Access denied. No allowed user!");
+            }
+            next();
+          } else {
+            throw new HttpException(401, "User is not allowed");
+          }
+      })
+      .catch((e) => {
+          e.status = 401;
+          next(e);
+      });
+      
+    } catch (e) {
+      e.status = 401;
+      next(e);
+    }
+  };
+};  
+
+
+
+
+const isAllowedMigration = () => {
+  return function (req, res, next) {
+    try {
+      const name = req.headers.authorization ? req.headers.authorization : '';
+      
+      knex('users')
+      .select()
+      .where({name})
+      .then( (user) => {
+          if(user.length !== 0)  {
+            console.log(user)
+            if (!user[0].allow_migrations ) {
+                throw new HttpException(401, "Access denied. No allowed user!");
+            }
+            next();
+          } else {
+            throw new HttpException(401, "User is not allowed");
+          }
+      })
+      .catch((e) => {
+          e.status = 401;
+          next(e);
+      });
+      
+    } catch (e) {
+      e.status = 401;
+      next(e);
+    }
+  };
+};  
+
+
+module.exports = { isAllowedUser, isAllowedGraphql, isAllowedMetadata, isAllowedMigration};
   
